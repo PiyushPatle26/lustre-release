@@ -77,7 +77,9 @@ static inline struct timespec timespec64_to_timespec(const struct timespec64 ts6
 
 #endif /* HAVE_TIMESPEC64 */
 
-#ifndef HAVE_NS_TO_TIMESPEC64
+#ifdef HAVE_NS_TO_TIMESPEC64
+// Kernel provides ns_to_timespec64, do not redefine
+#else
 static inline struct timespec64 ns_to_timespec64(const s64 nsec)
 {
 	struct timespec64 ts;
@@ -95,7 +97,7 @@ static inline struct timespec64 ns_to_timespec64(const s64 nsec)
 
 	return ts;
 }
-#endif
+#endif /* HAVE_NS_TO_TIMESPEC64 */
 
 #ifndef HAVE_KTIME_ADD
 # define ktime_add(lhs, rhs) ({ (ktime_t){ .tv64 = (lhs).tv64 + (rhs).tv64 }; })
@@ -163,7 +165,9 @@ static inline s64 ktime_ms_delta(const ktime_t later, const ktime_t earlier)
 }
 #endif /* HAVE_KTIME_MS_DELTA */
 
-#ifndef HAVE_KTIME_TO_TIMESPEC64
+#ifdef HAVE_KTIME_TO_TIMESPEC64
+// Kernel provides ktime_to_timespec64, do not redefine
+#else
 static inline struct timespec64 ktime_to_timespec64(ktime_t kt)
 {
 	struct timespec ts = ns_to_timespec((kt).tv64);
@@ -172,7 +176,9 @@ static inline struct timespec64 ktime_to_timespec64(ktime_t kt)
 }
 #endif /* HAVE_KTIME_TO_TIMESPEC64 */
 
-#ifndef HAVE_TIMESPEC64_SUB
+#ifdef HAVE_TIMESPEC64_SUB
+// Kernel provides timespec64_sub, do not redefine
+#else
 static inline struct timespec64
 timespec64_sub(struct timespec64 later, struct timespec64 earlier)
 {
@@ -182,14 +188,16 @@ timespec64_sub(struct timespec64 later, struct timespec64 earlier)
 			    timespec64_to_timespec(earlier));
 	return timespec_to_timespec64(diff);
 }
-#endif
+#endif /* HAVE_TIMESPEC64_SUB */
 
-#ifndef HAVE_TIMESPEC64_TO_KTIME
+#ifdef HAVE_TIMESPEC64_TO_KTIME
+// Kernel provides timespec64_to_ktime, do not redefine
+#else
 static inline ktime_t timespec64_to_ktime(struct timespec64 ts)
 {
 	return ktime_set(ts.tv_sec, ts.tv_nsec);
 }
-#endif
+#endif /* HAVE_TIMESPEC64_TO_KTIME */
 
 static inline unsigned long cfs_time_seconds(time64_t seconds)
 {
