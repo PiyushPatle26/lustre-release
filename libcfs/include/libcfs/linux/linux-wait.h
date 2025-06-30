@@ -17,6 +17,10 @@
 #define __add_wait_queue_entry_tail __add_wait_queue_tail
 #endif
 
+#ifdef HAVE_WAIT_BIT_QUEUE_ENTRY
+// Kernel provides struct wait_bit_queue_entry, do not redefine
+#endif /* HAVE_WAIT_BIT_QUEUE_ENTRY */
+
 #ifndef HAVE_WAIT_BIT_HEADER_H
 struct wait_bit_queue_entry {
 	struct wait_bit_key	key;
