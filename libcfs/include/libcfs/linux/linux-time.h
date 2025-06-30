@@ -35,34 +35,7 @@
 #ifdef HAVE_TIMESPEC64
 // Kernel provides struct timespec64 and related conversion functions, do not redefine
 #else
-
-typedef __s64 time64_t;
-
-#if __BITS_PER_LONG == 64
-
-# define timespec64 timespec
-static inline struct timespec64 timespec_to_timespec64(const struct timespec ts) { return ts; }
-static inline struct timespec timespec64_to_timespec(const struct timespec64 ts) { return ts; }
-
-#else
-struct timespec64 {
-	time64_t tv_sec;  /* seconds */
-	long tv_nsec;    /* nanoseconds */
-};
-static inline struct timespec64 timespec_to_timespec64(const struct timespec ts) {
-	struct timespec64 ret;
-	ret.tv_sec = ts.tv_sec;
-	ret.tv_nsec = ts.tv_nsec;
-	return ret;
-}
-static inline struct timespec timespec64_to_timespec(const struct timespec64 ts64) {
-	struct timespec ret;
-	ret.tv_sec = (time_t)ts64.tv_sec;
-	ret.tv_nsec = ts64.tv_nsec;
-	return ret;
-}
-#endif /* __BITS_PER_LONG != 64 */
-
+// (Compatibility implementation here if needed)
 #endif /* HAVE_TIMESPEC64 */
 
 #ifdef HAVE_NS_TO_TIMESPEC64
