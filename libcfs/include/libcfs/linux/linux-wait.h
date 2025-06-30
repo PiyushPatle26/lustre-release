@@ -13,10 +13,6 @@
 #endif
 #include <linux/wait.h>
 
-#ifndef HAVE_WAIT_QUEUE_ENTRY
-#define wait_queue_entry_t wait_queue_t
-#endif
-
 #ifndef HAVE_PREPARE_TO_WAIT_EVENT
 #define __add_wait_queue_entry_tail __add_wait_queue_tail
 #endif

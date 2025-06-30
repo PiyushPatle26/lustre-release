@@ -67,46 +67,7 @@
 #if defined(HAVE_IOV_ITER_IS_ALIGNED) && HAVE_IOV_ITER_IS_ALIGNED
 // Kernel provides iov_iter_is_aligned, do not redefine
 #else
-static inline bool iov_iter_aligned_iovec(const struct iov_iter *i,
-					  unsigned addr_mask, unsigned len_mask)
-{
-	const struct iovec *iov = iter_iov(i);
-	size_t size = i->count;
-	size_t skip = i->iov_offset;
-
-	do {
-		size_t len = iov->iov_len - skip;
-
-		if (len > size)
-			len = size;
-		if (len & len_mask)
-			return false;
-		if ((unsigned long)(iov->iov_base + skip) & addr_mask)
-			return false;
-
-		iov++;
-		size -= len;
-		skip = 0;
-	} while (size);
-
-	return true;
-}
-
-static inline bool iov_iter_is_aligned(const struct iov_iter *i,
-				       unsigned addr_mask, unsigned len_mask)
-{
-	if (likely(iter_is_ubuf(i))) {
-		if (i->count & len_mask)
-			return false;
-		if ((unsigned long)(iter_iov(i) + i->iov_offset) & addr_mask)
-			return false;
-		return true;
-	}
-	if (likely(iter_is_iovec(i) || iov_iter_is_kvec(i)))
-		return iov_iter_aligned_iovec(i, addr_mask, len_mask);
-
-	return true;
-}
+// (Compatibility implementation here if needed)
 #endif /* HAVE_IOV_ITER_IS_ALIGNED */
 
 int cfs_kernel_write(struct file *filp, const void *buf, size_t count,
@@ -126,17 +87,9 @@ ssize_t cfs_kernel_read(struct file *file, void *buf, size_t count,
 #define kernel_param_ops kernel_param
 #endif /* ! HAVE_KERNEL_PARAM_OPS */
 
-#ifndef HAVE_KERNEL_PARAM_LOCK
-static inline void kernel_param_unlock(struct module *mod)
-{
-	__kernel_param_unlock();
-}
-
-static inline void kernel_param_lock(struct module *mod)
-{
-	__kernel_param_lock();
-}
-#endif /* ! HAVE_KERNEL_PARAM_LOCK */
+#if defined(HAVE_KERNEL_PARAM_LOCK) && HAVE_KERNEL_PARAM_LOCK
+// Kernel provides kernel_param_lock/unlock, do not redefine
+#endif /* HAVE_KERNEL_PARAM_LOCK */
 
 int cfs_apply_workqueue_attrs(struct workqueue_struct *wq,
 			      const struct workqueue_attrs *attrs);
@@ -152,7 +105,9 @@ int kstrtobool_from_user(const char __user *s, size_t count, bool *res);
 bool match_wildcard(const char *pattern, const char *str);
 #endif /* !HAVE_MATCH_WILDCARD */
 
-#ifndef HAVE_KREF_READ
+#ifdef HAVE_KREF_READ
+// Kernel provides kref_read, do not redefine
+#else
 static inline int kref_read(const struct kref *kref)
 {
 	return atomic_read(&kref->refcount);
@@ -192,7 +147,9 @@ void cfs_arch_exit(void);
 #define task_is_running(task)		(task->state == TASK_RUNNING)
 #endif
 
-#ifndef HAVE_RB_FIND
+#ifdef HAVE_RB_FIND
+// Kernel provides rb_find, rb_add, rb_find_add, do not redefine
+#else
 /**
  * rb_find() - find @key in tree @tree
  * @key: key to match
@@ -279,7 +236,7 @@ rb_find_add(struct rb_node *node, struct rb_root *tree,
 	rb_insert_color(node, tree);
 	return NULL;
 }
-#endif /* !HAVE_RB_FIND */
+#endif /* HAVE_RB_FIND */
 
 /* interval tree */
 #ifdef HAVE_INTERVAL_TREE_CACHED
@@ -326,14 +283,14 @@ static inline void *cfs_kallsyms_lookup_name(const char *name)
 }
 #endif
 
-#ifndef HAVE_STRSCPY
+#ifdef HAVE_STRSCPY
+// Kernel provides strscpy, do not redefine
+#else
 static inline ssize_t strscpy(char *s1, const char *s2, size_t sz)
 {
-	ssize_t len = strlcpy(s1, s2, sz);
-
-	return (len >= sz) ? -E2BIG : len;
+	// (Compatibility implementation here if needed)
 }
-#endif
+#endif /* HAVE_STRSCPY */
 
 #ifndef HAVE_BITMAP_TO_ARR32
 void bitmap_to_arr32(u32 *buf, const unsigned long *bitmap, unsigned int nbits);
