@@ -40,3 +40,14 @@ struct shrinker *ll_shrinker_create(struct ll_shrinker_ops *ops,
 				    const char *fmt, ...);
 
 #endif /* _LINUX_SHRINKER_LUSTRE_H */
+
+#ifndef _LUSTRE_COMPAT_SHRINKER_H
+#define _LUSTRE_COMPAT_SHRINKER_H
+
+#include <linux/shrinker.h>
+
+/* Use kernel's shrinker implementation directly */
+#define ll_shrinker_count(s, sc) (s)->count_objects(s, sc)
+#define ll_shrinker_scan(s, sc) (s)->scan_objects(s, sc)
+
+#endif /* _LUSTRE_COMPAT_SHRINKER_H */

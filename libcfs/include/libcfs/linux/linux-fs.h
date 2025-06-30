@@ -13,21 +13,20 @@
  * Basic library routines.
  */
 
-#ifndef __LIBCFS_LINUX_CFS_FS_H__
-#define __LIBCFS_LINUX_CFS_FS_H__
+#ifndef __LIBCFS_LINUX_FS_H__
+#define __LIBCFS_LINUX_FS_H__
 
 #include <linux/fs.h>
-#include <linux/stat.h>
-#include <linux/mount.h>
-#include <linux/backing-dev.h>
-#include <linux/pagemap.h>
+#include <linux/proc_fs.h>
+#include <linux/file.h>
+#include <linux/namei.h>
+#include <linux/dcache.h>
 
-#ifndef HAVE_FILE_DENTRY
-static inline struct dentry *file_dentry(const struct file *file)
-{
-	return file->f_path.dentry;
-}
-#endif
+/* Use kernel's file operations directly */
+#define file_dentry(file) file->f_path.dentry
+
+/* Use kernel's proc_ops directly */
+#define proc_ops proc_ops
 
 #ifndef S_DT_SHIFT
 #define S_DT_SHIFT		12
@@ -43,8 +42,6 @@ static inline struct dentry *file_dentry(const struct file *file)
 #ifdef HAVE_PROC_OPS
 #define PROC_OWNER(_fn)
 #else
-#define proc_ops file_operations
-#define PROC_OWNER(_owner)		.owner = (_owner),
 #define proc_open			open
 #define proc_read			read
 #define proc_write			write
@@ -64,4 +61,4 @@ static inline void mapping_clear_exiting(struct address_space *mapping)
 #endif
 }
 
-#endif /* __LIBCFS_LINUX_CFS_FS_H__ */
+#endif /* __LIBCFS_LINUX_FS_H__ */

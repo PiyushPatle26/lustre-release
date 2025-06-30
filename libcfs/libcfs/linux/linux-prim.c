@@ -35,60 +35,53 @@
 #include <libcfs/linux/linux-mem.h>
 #include <lustre_compat/linux/xarray.h>
 #include <lustre_crypto.h>
+#include <linux/pagemap.h>
+#include <linux/file.h>
+#include <linux/mount.h>
+#include <linux/namei.h>
+#include <linux/fs_struct.h>
+#include <linux/sched/signal.h>
+#include <linux/xarray.h>
+#include <linux/time64.h>
+#include <linux/timekeeping.h>
+#include <linux/bio.h>
+#include <linux/blkdev.h>
+#include <linux/crypto.h>
+#include <linux/scatterlist.h>
+#include <crypto/hash.h>
+#include <crypto/skcipher.h>
+#include <libcfs/linux/linux-fs.h>
+#include <libcfs/linux/linux-tcpip.h>
+#include <libcfs/linux/linux-crypto.h>
 
-#ifndef HAVE_KTIME_GET_TS64
+/* Use kernel's time functions directly */
 void ktime_get_ts64(struct timespec64 *ts)
 {
-	struct timespec now;
-
-	ktime_get_ts(&now);
-	*ts = timespec_to_timespec64(now);
+	ktime_get_real_ts64(ts);
 }
 EXPORT_SYMBOL(ktime_get_ts64);
-#endif /* HAVE_KTIME_GET_TS64 */
 
-#ifndef HAVE_KTIME_GET_REAL_TS64
 void ktime_get_real_ts64(struct timespec64 *ts)
 {
-	struct timespec now;
-
-	getnstimeofday(&now);
-	*ts = timespec_to_timespec64(now);
+	ktime_get_real_ts64(ts);
 }
 EXPORT_SYMBOL(ktime_get_real_ts64);
-#endif /* HAVE_KTIME_GET_REAL_TS64 */
 
-#ifndef HAVE_KTIME_GET_REAL_SECONDS
-/*
- * Get the seconds portion of CLOCK_REALTIME (wall clock).
- * This is the clock that can be altered by NTP and is
- * independent of a reboot.
- */
 time64_t ktime_get_real_seconds(void)
 {
-	return (time64_t)get_seconds();
+	struct timespec64 ts;
+	ktime_get_real_ts64(&ts);
+	return ts.tv_sec;
 }
 EXPORT_SYMBOL(ktime_get_real_seconds);
-#endif /* HAVE_KTIME_GET_REAL_SECONDS */
 
-#ifndef HAVE_KTIME_GET_SECONDS
-/*
- * Get the seconds portion of CLOCK_MONOTONIC
- * This clock is immutable and is reset across
- * reboots. For older platforms this is a
- * wrapper around get_seconds which is valid
- * until 2038. By that time this will be gone
- * one would hope.
- */
 time64_t ktime_get_seconds(void)
 {
-	struct timespec64 now;
-
-	ktime_get_ts64(&now);
-	return now.tv_sec;
+	struct timespec64 ts;
+	ktime_get_ts64(&ts);
+	return ts.tv_sec;
 }
 EXPORT_SYMBOL(ktime_get_seconds);
-#endif /* HAVE_KTIME_GET_SECONDS */
 
 static int (*cfs_apply_workqueue_attrs_t)(struct workqueue_struct *wq,
 					  const struct workqueue_attrs *attrs);
@@ -243,35 +236,17 @@ void __exit cfs_arch_exit(void)
 #endif
 }
 
-int cfs_kernel_write(struct file *filp, const void *buf, size_t count,
-		     loff_t *pos)
+ssize_t cfs_kernel_write(struct file *file, const void *buf, size_t count,
+			 loff_t *pos)
 {
-#ifdef HAVE_NEW_KERNEL_WRITE
-	return kernel_write(filp, buf, count, pos);
-#else
-	mm_segment_t __old_fs = get_fs();
-	int rc;
-
-	set_fs(KERNEL_DS);
-	rc = vfs_write(filp, (__force const char __user *)buf, count, pos);
-	set_fs(__old_fs);
-
-	return rc;
-#endif
+	return kernel_write(file, buf, count, pos);
 }
 EXPORT_SYMBOL(cfs_kernel_write);
 
-ssize_t cfs_kernel_read(struct file *file, void *buf, size_t count, loff_t *pos)
+ssize_t cfs_kernel_read(struct file *file, void *buf, size_t count,
+		       loff_t *pos)
 {
-#ifdef HAVE_KERNEL_READ_LAST_POSP
 	return kernel_read(file, buf, count, pos);
-#else
-	ssize_t size = kernel_read(file, *pos, buf, count);
-
-	if (size > 0)
-		*pos += size;
-	return size;
-#endif
 }
 EXPORT_SYMBOL(cfs_kernel_read);
 
@@ -378,14 +353,16 @@ EXPORT_SYMBOL(bitmap_to_arr32);
 #ifndef HAVE_KSTRTOBOOL_FROM_USER
 int kstrtobool_from_user(const char __user *s, size_t count, bool *res)
 {
-	/* Longest string needed to differentiate, newline, terminator */
-	char buf[4];
+	char buf[32];
 
-	count = min(count, sizeof(buf) - 1);
+	if (count >= sizeof(buf))
+		return -EINVAL;
+
 	if (copy_from_user(buf, s, count))
 		return -EFAULT;
 	buf[count] = '\0';
-	return strtobool(buf, res);
+
+	return kstrtobool(buf, res);
 }
 EXPORT_SYMBOL(kstrtobool_from_user);
 #endif /* !HAVE_KSTRTOBOOL_FROM_USER */
@@ -421,9 +398,19 @@ MODULE_PARM_DESC(libcfs_reserved_cache, "system page cache reservation in mbytes
 
 unsigned long cfs_totalram_pages(void)
 {
-	if (libcfs_reserved_cache > _totalram_pages()/2)
-		libcfs_reserved_cache = _totalram_pages() / 2;
-
-	return _totalram_pages() - libcfs_reserved_cache;
+	return totalram_pages() - libcfs_reserved_cache;
 }
 EXPORT_SYMBOL(cfs_totalram_pages);
+
+/* Use kernel's bio functions directly */
+struct bio *cfs_bio_alloc(gfp_t gfp_mask, unsigned short nr_iovecs)
+{
+	return bio_alloc(NULL, nr_iovecs, gfp_mask);
+}
+EXPORT_SYMBOL(cfs_bio_alloc);
+
+void cfs_bio_set_op_attrs(struct bio *bio, unsigned int op, unsigned int flags)
+{
+	bio_set_op_attrs(bio, op, flags);
+}
+EXPORT_SYMBOL(cfs_bio_set_op_attrs);

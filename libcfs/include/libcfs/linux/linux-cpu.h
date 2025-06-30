@@ -18,14 +18,13 @@
 #define __LIBCFS_LINUX_CPU_H__
 
 #include <linux/cpu.h>
+#include <linux/cpumask.h>
+#include <linux/topology.h>
+#include <linux/sched.h>
 
-#ifndef HAVE_TOPOLOGY_SIBLING_CPUMASK
-# define topology_sibling_cpumask(cpu)	topology_thread_cpumask(cpu)
-#endif /* HAVE_TOPOLOGY_SIBLING_CPUMASK */
-
-#ifndef HAVE_CPUS_READ_LOCK
-# define cpus_read_lock		get_online_cpus
-# define cpus_read_unlock	put_online_cpus
-#endif
+/* Use kernel's CPU functions directly */
+#define topology_sibling_cpumask(cpu) topology_thread_cpumask(cpu)
+#define cpus_read_lock() cpus_read_lock()
+#define cpus_read_unlock() cpus_read_unlock()
 
 #endif /* __LIBCFS_LINUX_CPU_H__ */

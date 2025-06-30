@@ -23,6 +23,23 @@
 #include <linux/user_namespace.h>
 #include <linux/uio.h>
 #include <linux/kallsyms.h>
+#include <linux/file.h>
+#include <linux/mm.h>
+#include <linux/sched.h>
+#include <linux/slab.h>
+#include <linux/pagemap.h>
+#include <linux/rbtree.h>
+#include <linux/kref.h>
+#include <linux/moduleparam.h>
+#include <linux/version.h>
+
+/* Compatibility for kernel 6.15 changes */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,15,0)
+#define HAVE_BIO_INTEGRITY_PREP_FN
+#define HAVE_FOLIO_TEST_MLOCKED
+#define HAVE_PAGEPRIVATE2
+#define HAVE_STRUCT_FILE_F_VERSION
+#endif
 
 /*
  * Since 4.20 commit 00e23707442a75b404392cef1405ab4fd498de6b
@@ -187,7 +204,7 @@ void cfs_arch_exit(void);
 #endif
 
 #ifndef HAVE_TASK_IS_RUNNING
-#define task_is_running(task)		(task->state == TASK_RUNNING)
+#define task_is_running(task)		(READ_ONCE((task)->__state) == TASK_RUNNING)
 #endif
 
 #ifndef HAVE_RB_FIND
@@ -353,5 +370,20 @@ int shrinker_debugfs_init(void);
 static inline void shrinker_debugfs_fini(void) {};
 static inline int shrinker_debugfs_init(void) { return 0; };
 #endif
+
+/* Use kernel's functions directly */
+#define iov_iter_is_aligned(i, addr_mask, align) iov_iter_is_aligned(i, addr_mask, align)
+#define kernel_param_lock(mod) kernel_param_lock(mod)
+#define kernel_param_unlock(mod) kernel_param_unlock(mod)
+#define kref_read(kref) atomic_read(&(kref)->refcount)
+#define task_is_running(task) (READ_ONCE((task)->__state) == TASK_RUNNING)
+
+/* Use kernel's rbtree functions directly */
+#define rb_find(key, tree, cmp) rb_find(key, tree, cmp)
+#define rb_add(node, tree, cmp) rb_add(node, tree, cmp)
+#define rb_find_add(node, tree, cmp) rb_find_add(node, tree, cmp)
+
+/* Use kernel's string functions directly */
+#define strscpy(dst, src, size) strscpy(dst, src, size)
 
 #endif /* __LIBCFS_LINUX_MISC_H__ */

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 
-#ifndef __LIBCFS_LINUX_WAIT_BIT_H
-#define __LIBCFS_LINUX_WAIT_BIT_H
+#ifndef __LIBCFS_LINUX_WAIT_H__
+#define __LIBCFS_LINUX_WAIT_H__
 
 /* Make sure we can see if we have TASK_NOLOAD */
 #include <linux/sched.h>
@@ -584,4 +584,4 @@ int woken_wake_function(wait_queue_entry_t *wait, unsigned int mode,
 			int sync, void *key);
 #endif /* HAVE_WAIT_WOKEN */
 
-#endif /* __LICBFS_LINUX_WAIT_BIT_H */
+#endif /* __LIBCFS_LINUX_WAIT_H__ */

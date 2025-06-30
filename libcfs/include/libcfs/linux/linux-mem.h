@@ -13,102 +13,35 @@
  * Basic library routines.
  */
 
-#ifndef __LIBCFS_LINUX_CFS_MEM_H__
-#define __LIBCFS_LINUX_CFS_MEM_H__
+#ifndef __LIBCFS_LINUX_MEM_H__
+#define __LIBCFS_LINUX_MEM_H__
 
 #include <linux/mm.h>
 #include <linux/vmalloc.h>
-#include <linux/pagemap.h>
 #include <linux/slab.h>
-#ifdef HAVE_MM_INLINE
-# include <linux/mm_inline.h>
-#endif
-#include <linux/sched.h>
-#ifdef HAVE_SCHED_HEADERS
-#include <linux/sched/mm.h>
-#endif
+#include <linux/percpu.h>
+#include <linux/mm_inline.h>
+#include <linux/pagemap.h>
+#include <linux/mmap_lock.h>
+
+/* Use kernel's memory management functions directly */
+#define memalloc_noreclaim_save() memalloc_noreclaim_save()
+#define memalloc_noreclaim_restore(flags) memalloc_noreclaim_restore(flags)
+
+/* Use kernel's bitmap functions directly */
+#define bitmap_alloc(nbits, flags) bitmap_alloc(nbits, flags)
+#define bitmap_zalloc(nbits, flags) bitmap_zalloc(nbits, flags)
+#define bitmap_free(bitmap) bitmap_free(bitmap)
+
+/* Use kernel's mmap functions directly */
+#define mmap_write_lock(mm) mmap_write_lock(mm)
+#define mmap_write_unlock(mm) mmap_write_unlock(mm)
+#define mmap_read_lock(mm) mmap_read_lock(mm)
+#define mmap_read_unlock(mm) mmap_read_unlock(mm)
+#define mmap_write_trylock(mm) mmap_write_trylock(mm)
+#define mmap_read_trylock(mm) mmap_read_trylock(mm)
 
 unsigned long cfs_totalram_pages(void);
-
-#ifndef HAVE_MEMALLOC_RECLAIM
-static inline unsigned int memalloc_noreclaim_save(void)
-{
-	unsigned int flags = current->flags & PF_MEMALLOC;
-
-	current->flags |= PF_MEMALLOC;
-	return flags;
-}
-
-static inline void memalloc_noreclaim_restore(unsigned int flags)
-{
-	current->flags = (current->flags & ~PF_MEMALLOC) | flags;
-}
-#endif /* !HAVE_MEMALLOC_RECLAIM */
-
-#ifndef HAVE_BITMAP_ALLOC
-static inline unsigned long *bitmap_alloc(unsigned int nbits, gfp_t flags)
-{
-	return kmalloc_array(BITS_TO_LONGS(nbits), sizeof(unsigned long),
-			     flags);
-}
-
-static inline unsigned long *bitmap_zalloc(unsigned int nbits, gfp_t flags)
-{
-	return bitmap_alloc(nbits, flags | __GFP_ZERO);
-}
-
-static inline void bitmap_free(const unsigned long *bitmap)
-{
-	kfree(bitmap);
-}
-#endif /* !HAVE_BITMAP_ALLOC */
-
-/*
- * Shrinker
- */
-#ifndef SHRINK_STOP
-# define SHRINK_STOP (~0UL)
-#endif
-
-#ifndef HAVE_MMAP_LOCK
-static inline void mmap_write_lock(struct mm_struct *mm)
-{
-	down_write(&mm->mmap_sem);
-}
-
-static inline bool mmap_write_trylock(struct mm_struct *mm)
-{
-	return down_write_trylock(&mm->mmap_sem) != 0;
-}
-
-static inline void mmap_write_unlock(struct mm_struct *mm)
-{
-	up_write(&mm->mmap_sem);
-}
-
-static inline void mmap_read_lock(struct mm_struct *mm)
-{
-	down_read(&mm->mmap_sem);
-}
-
-static inline bool mmap_read_trylock(struct mm_struct *mm)
-{
-	return down_read_trylock(&mm->mmap_sem) != 0;
-}
-
-static inline void mmap_read_unlock(struct mm_struct *mm)
-{
-	up_read(&mm->mmap_sem);
-}
-#else
- #ifndef HAVE_MMAP_WRITE_TRYLOCK
-/* Replacement for mmap_write_trylock() */
-static inline bool mmap_write_trylock(struct mm_struct *mm)
-{
-	return down_write_trylock(&mm->mmap_lock) != 0;
-}
- #endif /* HAVE_MMAP_WRITE_TRYLOCK */
-#endif
 
 #ifdef HAVE_VMALLOC_2ARGS
 #define __ll_vmalloc(size, flags) __vmalloc(size, flags)
@@ -126,4 +59,4 @@ void libcfs_vfree_atomic(const void *addr);
 #define kfree_sensitive(x)      kzfree(x)
 #endif
 
-#endif /* __LINUX_CFS_MEM_H__ */
+#endif /* __LIBCFS_LINUX_MEM_H__ */
