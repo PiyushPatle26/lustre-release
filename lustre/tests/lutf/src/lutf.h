@@ -14,7 +14,9 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#ifndef __KERNEL__
 #include <stdarg.h>
+#endif
 #include <time.h>
 #include <sys/stat.h>
 #include "lutf_common.h"
