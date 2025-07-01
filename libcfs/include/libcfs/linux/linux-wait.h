@@ -3,6 +3,10 @@
 #ifndef __LIBCFS_LINUX_WAIT_BIT_H
 #define __LIBCFS_LINUX_WAIT_BIT_H
 
+#ifdef HAVE_LINUX_6_14_API
+#include <linux/sched.h>
+#include <linux/wait.h>
+#else
 /* Make sure we can see if we have TASK_NOLOAD */
 #include <linux/sched.h>
 /*
@@ -584,4 +588,6 @@ int woken_wake_function(wait_queue_entry_t *wait, unsigned int mode,
 			int sync, void *key);
 #endif /* HAVE_WAIT_WOKEN */
 
-#endif /* __LICBFS_LINUX_WAIT_BIT_H */
+#endif /* HAVE_LINUX_6_14_API */
+
+#endif /* __LIBCFS_LINUX_WAIT_BIT_H */

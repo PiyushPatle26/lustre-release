@@ -16,12 +16,13 @@
 #ifndef __LIBCFS_LINUX_CFS_FS_H__
 #define __LIBCFS_LINUX_CFS_FS_H__
 
+#ifdef HAVE_LINUX_6_14_API
 #include <linux/fs.h>
 #include <linux/stat.h>
 #include <linux/mount.h>
 #include <linux/backing-dev.h>
 #include <linux/pagemap.h>
-
+#else
 #ifndef HAVE_FILE_DENTRY
 static inline struct dentry *file_dentry(const struct file *file)
 {
@@ -63,5 +64,6 @@ static inline void mapping_clear_exiting(struct address_space *mapping)
 	clear_bit(AS_EXITING, &mapping->flags);
 #endif
 }
+#endif /* HAVE_LINUX_6_14_API */
 
 #endif /* __LIBCFS_LINUX_CFS_FS_H__ */

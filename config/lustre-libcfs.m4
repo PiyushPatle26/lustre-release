@@ -18,7 +18,7 @@ AC_ARG_ENABLE([libcfs_cdebug],
 AC_MSG_RESULT([$enable_libcfs_cdebug])
 AS_IF([test "x$enable_libcfs_cdebug" = xyes], [
 	AC_DEFINE(CDEBUG_ENABLED, 1, [enable libcfs CDEBUG, CWARN])
-	AC_SUBST(ENABLE_LIBCFS_CDEBUG, yes)
+	AC_SUBST(ENABLE_LIBCFS_CDEBUG, yes) 
 ], [
 	AC_SUBST(ENABLE_LIBCFS_CDEBUG, no)
 ])
@@ -2518,6 +2518,23 @@ AC_DEFUN([LIBCFS_BLK_INTEGRITY_NOVERIFY], [
 	])
 ]) # LIBCFS_BLK_INTEGRITY_NOVERIFY
 
+# Kernel version 6.14 detection
+AC_DEFUN([LIBCFS_SRC_LINUX_6_14_API], [
+	LB2_LINUX_TEST_SRC([linux_6_14_api], [
+		#include <linux/version.h>
+	], [
+		#if LINUX_VERSION_CODE < KERNEL_VERSION(6,14,0)
+		#error Kernel < 6.14
+		#endif
+	], [-Werror])
+])
+AC_DEFUN([LIBCFS_LINUX_6_14_API], [
+	LB2_MSG_LINUX_TEST_RESULT([if kernel is >= 6.14],
+	[linux_6_14_api], [
+		AC_DEFINE(HAVE_LINUX_6_14_API, 1, [Kernel is 6.14 or newer])
+	])
+]) # LIBCFS_LINUX_6_14_API
+
 dnl #
 dnl # Generate and compile all of the kernel API test cases to determine
 dnl # which interfaces are available.  By invoking the kernel build system
@@ -2674,6 +2691,8 @@ AC_DEFUN([LIBCFS_PROG_LINUX_SRC], [
 	# 6.11
 	LIBCFS_SRC_CONSTIFY_CTR_TABLE
 	LIBCFS_SRC_BLK_INTEGRITY_NOVERIFY
+	# 6.14
+	LIBCFS_SRC_LINUX_6_14_API
 ])
 
 dnl #
@@ -2831,6 +2850,8 @@ AC_DEFUN([LIBCFS_PROG_LINUX_RESULTS], [
 	# 6.11
 	LIBCFS_CONSTIFY_CTR_TABLE
 	LIBCFS_BLK_INTEGRITY_NOVERIFY
+	# 6.14
+	LIBCFS_LINUX_6_14_API
 ])
 
 #

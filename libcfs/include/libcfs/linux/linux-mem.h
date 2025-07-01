@@ -16,6 +16,12 @@
 #ifndef __LIBCFS_LINUX_CFS_MEM_H__
 #define __LIBCFS_LINUX_CFS_MEM_H__
 
+#ifdef HAVE_LINUX_6_14_API
+#include <linux/mm.h>
+#include <linux/vmalloc.h>
+#include <linux/pagemap.h>
+#include <linux/slab.h>
+#else
 #include <linux/mm.h>
 #include <linux/vmalloc.h>
 #include <linux/pagemap.h>
@@ -125,5 +131,6 @@ void libcfs_vfree_atomic(const void *addr);
 #ifndef HAVE_KFREE_SENSITIVE
 #define kfree_sensitive(x)      kzfree(x)
 #endif
+#endif /* HAVE_LINUX_6_14_API */
 
-#endif /* __LINUX_CFS_MEM_H__ */
+#endif /* __LIBCFS_LINUX_CFS_MEM_H__ */

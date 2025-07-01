@@ -2,6 +2,17 @@
 
 #ifndef _LINUX_XARRAY_LUSTRE_H
 #define _LINUX_XARRAY_LUSTRE_H
+
+#if defined(HAVE_LINUX_6_14_API)
+#include <linux/xarray.h>
+
+#else /* !HAVE_LINUX_6_14_API */
+
+#define HAVE_XARRAY_SUPPORT 1
+
+#ifdef HAVE_XARRAY_SUPPORT
+#include <linux/xarray.h>
+#else
 /*
  * eXtensible Arrays
  * Copyright (c) 2017 Microsoft Corporation
@@ -1762,8 +1773,6 @@ static inline void *xas_next(struct xa_state *xas)
 	xas->xa_offset++;
 	return xa_entry(xas->xa, node, xas->xa_offset);
 }
-#else
-#include <linux/xarray.h>
 #endif /* !HAVE_XARRAY_SUPPORT */
 
 #endif /* _LINUX_XARRAY_LUSTRE_H */

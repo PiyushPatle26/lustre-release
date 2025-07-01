@@ -18,6 +18,16 @@
 #ifndef __LIBCFS_LINUX_LINUX_TIME_H__
 #define __LIBCFS_LINUX_LINUX_TIME_H__
 
+#ifdef HAVE_LINUX_6_14_API
+#include <linux/hrtimer.h>
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/version.h>
+#include <linux/jiffies.h>
+#include <linux/types.h>
+#include <linux/time.h>
+#include <asm/div64.h>
+#else
 /* Portable time API */
 #include <linux/hrtimer.h>
 #include <linux/module.h>
@@ -226,5 +236,7 @@ static inline unsigned long cfs_time_seconds(time64_t seconds)
 	setup_timer((timer), (callback), (data))
 #define cfs_timer_cb_arg(var, timer_fieldname) (cfs_timer_cb_arg_t)(var)
 #endif
+
+#endif /* HAVE_LINUX_6_14_API */
 
 #endif /* __LIBCFS_LINUX_LINUX_TIME_H__ */

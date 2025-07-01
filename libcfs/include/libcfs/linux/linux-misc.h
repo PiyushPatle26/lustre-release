@@ -14,7 +14,14 @@
 #ifndef __LIBCFS_LINUX_MISC_H__
 #define __LIBCFS_LINUX_MISC_H__
 
+#ifdef HAVE_LINUX_6_14_API
 #include <linux/fs.h>
+#include <linux/blk_types.h>
+#include <linux/mutex.h>
+#include <linux/user_namespace.h>
+#include <linux/uio.h>
+#include <linux/kallsyms.h>
+#else
 /* Since Commit 2f8b544477e6 ("block,fs: untangle fs.h and blk_types.h")
  * fs.h doesn't include blk_types.h, but we need it.
  */
@@ -23,6 +30,7 @@
 #include <linux/user_namespace.h>
 #include <linux/uio.h>
 #include <linux/kallsyms.h>
+#endif /* HAVE_LINUX_6_14_API */
 
 /*
  * Since 4.20 commit 00e23707442a75b404392cef1405ab4fd498de6b

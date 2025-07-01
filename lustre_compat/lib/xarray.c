@@ -1,3 +1,4 @@
+#if !defined(HAVE_LINUX_6_14_API)
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * XArray implementation
