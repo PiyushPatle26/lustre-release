@@ -1033,6 +1033,7 @@ static inline void osd_dmu_write(struct osd_device *osd, dnode_t *dn,
 {
 	LASSERT(dn);
 	lustre_dmu_write_by_dnode(dn, offset, size, buf, tx);
+
 }
 #elif defined(HAVE_DMU_WRITE_BY_DNODE)
 #define lustre_dmu_write_by_dnode(dn, off, size, buf, tx) \

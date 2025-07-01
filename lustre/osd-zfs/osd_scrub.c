@@ -2349,7 +2349,7 @@ static int osd_scan_lastid_seq(const struct lu_env *env,
 	if (lastid < lastid_known) {
 		lastid = cpu_to_le64(lastid_known);
 		osd_dmu_write(dev, dn, 0, sizeof(lastid), (const char *)&lastid, tx);
-	}
+
 
 	dmu_tx_commit(tx);
 	GOTO(out, rc);
