@@ -14,9 +14,7 @@
 #ifndef __LUSTRE_LU_OBJECT_H
 #define __LUSTRE_LU_OBJECT_H
 
-#ifdef HAVE_LINUX_STDARG_HEADER
-#include <linux/stdarg.h>
-#else
+#ifndef __KERNEL__
 #include <stdarg.h>
 #endif
 #include <libcfs/libcfs.h>

@@ -19,7 +19,9 @@
 #define __LIBCFS_UTIL_STRING_H__
 
 #include <stddef.h>
+#ifndef
 #include <stdarg.h>
+#endif
 
 #include <linux/types.h>
 #include <linux/lnet/lnet-types.h>

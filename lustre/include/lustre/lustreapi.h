@@ -21,7 +21,9 @@
 
 #include <glob.h>
 #include <regex.h>
+#ifndef __KERNEL__
 #include <stdarg.h>
+#endif
 #include <stdint.h>
 #include <time.h>
 #include <unistd.h>
