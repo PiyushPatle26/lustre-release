@@ -145,16 +145,14 @@ modules: undef.h ldiskfs-sources
 	KBUILD_EXTRA_SYMBOLS="@INT_O2IB_SYMBOLS@ @EXTRA_SYMBOLS@ $(KBUILD_EXTRA_SYMBOLS)" \
 	LDFLAGS= CC="$(CC)" -C $(LINUX_OBJ) \
 	-f $(PWD)/config/Kbuild LUSTRE_LINUX_CONFIG=$(LINUX_CONFIG) \
-	LINUXINCLUDE='-I$$(srctree)/include -I$$(srctree)/arch/$$(SRCARCH)/include -Iarch/$$(SRCARCH)/include/generated -Iinclude $$(if $$(KBUILD_SRC)$$(building_out_of_srctree),-Iinclude2 -I$$(srctree)/include) -I$$(srctree)/arch/$$(SRCARCH)/include/uapi -Iarch/$$(SRCARCH)/include/generated/uapi -I$$(srctree)/include/uapi -Iinclude/generated/uapi -I$$(srctree)/arch/$$(SRCARCH)/include/generated -I$$(srctree)/arch/$$(SRCARCH)/include/generated/uapi -I$$(srctree)/include/generated -I$$(srctree)/include/generated/uapi -include $(CONFIG_INCLUDE)' \
-	$(MODULE_TARGET)=$(PWD) -o tmp_include_depends -o scripts -o \
+	LINUXINCLUDE='-I$$(srctree)/include -I$$(srctree)/arch/$$(SRCARCH)/include -Iarch/$$(SRCARCH)/include/generated -Iinclude $$(if $$(KBUILD_SRC)$$(building_out_of_srctree),-Iinclude2 -I$$(srctree)/include) -I$$(srctree)/arch/$$(SRCARCH)/include/uapi -Iarch/$$(SRCARCH)/include/generated/uapi -I$$(srctree)/include/uapi -Iinclude/generated/uapi -I$$(srctree)/arch/$$(SRCARCH)/include/generated -I$$(srctree)/arch/$$(SRCARCH)/include/generated/uapi -I$$(srctree)/include/generated -I$$(srctree)/include/generated/uapi -I$(PWD) -I$(PWD)/include -I$(PWD)/include/uapi -I$(PWD)/libcfs/include -I$(PWD)/lnet/include -I$(PWD)/lnet/include/uapi -I$(PWD)/lustre/include -I$(PWD)/lustre/include/uapi -I$(PWD)/lustre_compat -I/usr/include -I/usr/include/x86_64-linux-gnu -include $(CONFIG_INCLUDE)' \	$(MODULE_TARGET)=$(PWD) -o tmp_include_depends -o scripts -o \
 	include/config/MARKER $@
 if EXTERNAL_KO2IBLND
 	$(MAKE) DEQUOTE_CC_VERSION_TEXT=$(DEQUOTE) BUILD_EXT_O2IB=yes \
 	KBUILD_EXTRA_SYMBOLS="$(PWD)/Module.symvers @EXT_O2IB_SYMBOLS@ @EXTRA_SYMBOLS@" \
 	LDFLAGS= CC="$(CC)" -C $(LINUX_OBJ) \
 	-f $(PWD)/config/Kbuild LUSTRE_LINUX_CONFIG=$(LINUX_CONFIG) \
-	LINUXINCLUDE='-I$$(srctree)/include -I$$(srctree)/arch/$$(SRCARCH)/include -Iarch/$$(SRCARCH)/include/generated -Iinclude $$(if $$(KBUILD_SRC)$$(building_out_of_srctree),-Iinclude2 -I$$(srctree)/include) -I$$(srctree)/arch/$$(SRCARCH)/include/uapi -Iarch/$$(SRCARCH)/include/generated/uapi -I$$(srctree)/include/uapi -Iinclude/generated/uapi -I$$(srctree)/arch/$$(SRCARCH)/include/generated -I$$(srctree)/arch/$$(SRCARCH)/include/generated/uapi -I$$(srctree)/include/generated -I$$(srctree)/include/generated/uapi -include $(CONFIG_INCLUDE)' \
-	$(MODULE_TARGET)=$(PWD)/lnet/klnds/o2iblnd -o tmp_include_depends -o scripts -o \
+	LINUXINCLUDE='-I$$(srctree)/include -I$$(srctree)/arch/$$(SRCARCH)/include -Iarch/$$(SRCARCH)/include/generated -Iinclude $$(if $$(KBUILD_SRC)$$(building_out_of_srctree),-Iinclude2 -I$$(srctree)/include) -I$$(srctree)/arch/$$(SRCARCH)/include/uapi -Iarch/$$(SRCARCH)/include/generated/uapi -I$$(srctree)/include/uapi -Iinclude/generated/uapi -I$$(srctree)/arch/$$(SRCARCH)/include/generated -I$$(srctree)/arch/$$(SRCARCH)/include/generated/uapi -I$$(srctree)/include/generated -I$$(srctree)/include/generated/uapi -I$(PWD) -I$(PWD)/include -I$(PWD)/include/uapi -I$(PWD)/libcfs/include -I$(PWD)/lnet/include -I$(PWD)/lnet/include/uapi -I$(PWD)/lustre/include -I$(PWD)/lustre/include/uapi -I$(PWD)/lustre_compat -I/usr/include -I/usr/include/x86_64-linux-gnu -include $(CONFIG_INCLUDE)' \	$(MODULE_TARGET)=$(PWD)/lnet/klnds/o2iblnd -o tmp_include_depends -o scripts -o \
 	include/config/MARKER $@
 endif # EXTERNAL_KO2IBLND
 endif # LINUX
